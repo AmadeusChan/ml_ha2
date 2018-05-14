@@ -32,7 +32,7 @@ with open(count_path, "w") as f:
 config = {
         "base_model": "d-tree",
         "ensemble": "bagging",
-        "T": 10
+        "T": 5
         }
 
 X, y, X_test = Utils.load_data(train_path, test_path)
@@ -54,22 +54,25 @@ for train_idx, valid_idx in kf:
     if config["base_model"] == "d-tree":
         base_model = tree.DecisionTreeClassifier()
     if config["ensemble"] == "bagging":
+        ensemble = Bagging()
+    else:
         ensemble = AdaBoostingM1()
-    """
+
     ensemble.aggregate(X_train, y_train, config["T"], base_model, is_classification = True)
     y_valid_ = ensemble.predict(X_valid)
-    """
 
+    """
     cf = tree.DecisionTreeClassifier()
     cf.fit(X_train, y_train)
     y_valid_ = cf.predict(X_valid)
+    """
 
     rmse = cal_rmse(y_valid, y_valid_)
     total_rmse += rmse
     print "valid rmse: %.4f" % (rmse) 
 
-    #ensembles.append(ensemble)
-    ensembles.append(cf)
+    ensembles.append(ensemble)
+    #ensembles.append(cf)
 
 print "\naverage rmse: %.4f" % (total_rmse / cv)
 
