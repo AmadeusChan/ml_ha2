@@ -111,7 +111,7 @@ class Bagging(Ensemble):
         self.classifiers = None
         self.combining_strategy = None
 
-    def bootstrap(X_train, y_train):
+    def bootstrap(self, X_train, y_train):
         X_train_ = []
         y_train_ = []
         for i in range(len(X_train)):
@@ -130,6 +130,7 @@ class Bagging(Ensemble):
             self.combining_strategy = SimpleAveraging()
 
         for t in range(T):
+            print "bagging t = %s/%s" % (t + 1, T)
             classifier = copy.deepcopy(base_model)
             X_train_, y_train_ = self.bootstrap(X_train, y_train)
             classifier.fit(X_train_, y_train_)
@@ -142,7 +143,7 @@ class Bagging(Ensemble):
         assert self.is_classification != None
         assert self.combining_strategy != None
         assert self.combining_strategy != None
-        return combining_strategy.predict(X_test)
+        return self.combining_strategy.predict(X_test)
 
 class AdaBoostingM1(Ensemble):
 
@@ -164,7 +165,8 @@ class AdaBoostingM1(Ensemble):
         for i in range(len(weights)):
             s += weights[i]
             accumulated_weights.append(s)
-        assert abs(accumulated_weights[-1] - 1.) < 1e-20
+        #print "%.10f\n" % (accumulated_weights[-1])
+        assert abs(accumulated_weights[-1] - 1.) < 1e-8, "weights are not normalized"
         N = len(X_train)
         for i in range(N * times):
             r = random.uniform(0., 1.)
@@ -206,8 +208,9 @@ class AdaBoostingM1(Ensemble):
             weights.append(1. / N)
 
         for t in range(T):
+            print "adaboosting t = %s/%s" % (t + 1, T)
             classifier = copy.deepcopy(base_model)
-            X_train_, y_train_ = weighted_sampling(X_train, y_train, weights)
+            X_train_, y_train_ = self.weighted_sampling(X_train, y_train, weights)
             classifier.fit(X_train_, y_train_)
             predicted_y_train = classifier.predict(X_train)
             epsilon = 0.
@@ -237,7 +240,7 @@ class AdaBoostingM1(Ensemble):
         assert self.combining_strategy != None
         assert self.combining_strategy != None
         assert self.alpha != None
-        return combining_strategy.predict(X_test)
+        return self.combining_strategy.predict(X_test)
 
 class Stacking(Ensemble):
 
