@@ -34,6 +34,7 @@ def extract_keywords(row_X, y, keywords_path):
         stat = words[word]
         stat["word"] = word
         stat["importance"] = max(max(stat[0], stat[1]), stat[-1]) * 1. / (stat[0] + stat[1] + stat[-1])
+        stat["count"] = stat[0] + stat[1] + stat[-1]
         """
         if (stat[0] + stat[1] + stat[-1]) < 20:
             stat["importance"] = 0.
@@ -48,10 +49,12 @@ def extract_keywords(row_X, y, keywords_path):
         print "sorting keywords... %.2f" % (100. * (i + 1.) / len(words_list)) + "%"
 
         for j in range(i, len(words_list)):
-            if words_list[i]["importance"] < words_list[j]["importance"]:
+            if words_list[i]["count"] < words_list[j]["count"]:
+            #if words_list[i]["importance"] < words_list[j]["importance"]:
                 words_list[i], words_list[j] = words_list[j], words_list[i]
 
     top_number = len(words_list)
+    #top_number = 17000
     keywords_list = []
     for i in range(top_number):
         print "ranking " + str(i) + ": " + words_list[i]["word"] + " score: %.4f" % (words_list[i]["importance"])
@@ -164,6 +167,10 @@ def load_data(train_path, test_path):
             X_test.append(x)
         np.save(X_test_path, np.asarray(X_test))
     
+    X, y, X_test = np.asarray(X), np.asarray(y), np.asarray(X_test)
+    idx = range(len(X))
+    random.shuffle(idx)
+    X, y = X[idx], y[idx]
     return X, y, X_test
 
 if __name__ == "__main__":
