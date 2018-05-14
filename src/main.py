@@ -31,7 +31,7 @@ with open(count_path, "w") as f:
 
 config = {
         "base_model": "d-tree",
-        "ensemble": "bagging",
+        "ensemble": "adaboosting",
         "T": 5
         }
 
