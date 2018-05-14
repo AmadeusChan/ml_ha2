@@ -5,12 +5,97 @@ import sys
 import json
 import os
 
+def extract_bitrigram(raw_X, y, bigram_path, trigram_path):
+    bigram_list = None
+    trigram_list = None
+
+    bigram_th = 1e-5
+    trigram_th = 1e-5
+
+    if os.path.isfile(bigram_path):
+        with open(bigram_path, "r") as f:
+            bigram_list = json.load(f)
+    else:
+        print ""
+        bigrams = {}
+        tot_count = 0 
+        for i in range(len(raw_X)):
+            sys.stdout.write("\033[F")
+            sys.stdout.write("\033[K")
+            print "extracting bigrams... %.2f" % (100. * (i + 1.) / len(raw_X)) + "%"
+
+            x = raw_X[i]
+            if len(x) - 1 <= 0:
+                continue
+            for j in range(len(x) - 1):
+                tot_count += 1
+                w = x[j] + "100001" + x[j + 1]
+                if w in bigrams:
+                    bigrams[w][y[i]] += 1
+                    bigrams[w]["count"] += 1
+                else:
+                    stat = {0: 0, -1: 0, 1: 0, "count": 1}
+                    stat[y[i]] = 1 
+                    bigrams[w] = stat
+        count_th = int(bigram_th * tot_count)
+        bigram_list = []
+        print "total number of bigrams %s" % (len(bigrams))
+        for w in bigrams:
+            stat = bigrams[w]
+            if stat["count"] < count_th:
+                continue
+            stat["word"] = w
+            bigram_list.append(stat)
+        print "number of bigrams selected %s" % (len(bigram_list))
+        with open(bigram_path, "w") as f:
+            json.dump(bigram_list, f)
+    
+    if os.path.isfile(trigram_path):
+        with open(trigram_path, "r") as f:
+            trigram_list = json.load(f)
+    else:
+        print ""
+        trigrams = {}
+        tot_count = 0 
+        for i in range(len(raw_X)):
+            sys.stdout.write("\033[F")
+            sys.stdout.write("\033[K")
+            print "extracting trigrams... %.2f" % (100. * (i + 1.) / len(raw_X)) + "%"
+
+            x = raw_X[i]
+            if len(x) - 2 <= 0:
+                continue
+            for j in range(len(x) - 2):
+                tot_count += 1
+                w = x[j] + "100001" + x[j + 1] + "100001" + x[j + 2]
+                if w in trigrams:
+                    trigrams[w][y[i]] += 1
+                    trigrams[w]["count"] += 1
+                else:
+                    stat = {0: 0, -1: 0, 1: 0, "count": 1}
+                    stat[y[i]] = 1 
+                    trigrams[w] = stat
+        count_th = int(trigram_th * tot_count)
+        trigram_list = []
+        print "total number of trigrams %s" % (len(trigrams))
+        for w in trigrams:
+            stat = trigrams[w]
+            if stat["count"] < count_th:
+                continue
+            stat["word"] = w
+            trigram_list.append(stat)
+        print "number of trigrams selected %s" % (len(trigram_list))
+        with open(trigram_path, "w") as f:
+            json.dump(trigram_list, f)
+
+    return trigram_list, trigram_list
+
 def extract_keywords(row_X, y, keywords_path):
     if os.path.isfile(keywords_path):
         with open(keywords_path, "r") as f:
             keywords_list = json.load(f)
         return keywords_list
-    
+
     words = {}
     print ""
     for i in range(len(row_X)):
@@ -74,6 +159,8 @@ def load_data(train_path, test_path):
     keywords_path = "../data/keywords.json"
     X_path = "../data/X.npy"
     X_test_path = "../data/X_test.npy"
+    bigram_path = "../data/bigrams.json"
+    trigram_path = "../data/trigrams.json"
 
     raw_X = []
     X = []
@@ -81,7 +168,7 @@ def load_data(train_path, test_path):
     raw_X_test = []
     X_test = []
 
-    with open(train_path) as f:
+    with open(train_path, "r") as f:
         line = f.readline()
         while True:
             line = f.readline().strip()
@@ -92,6 +179,8 @@ def load_data(train_path, test_path):
                 pos += 1
             y.append(int(line[:pos]))
             raw_X.append(process_X(line[pos+1:]))
+
+    bigram_list, trigram_list = extract_bitrigram(raw_X, y, bigram_path, trigram_path)
 
     keywords_list = extract_keywords(raw_X, y, keywords_path)
     keywords_set = set()
@@ -115,7 +204,7 @@ def load_data(train_path, test_path):
             for j in range(len(keywords_list)):
                 w_ = keywords_list[j]["word"]
                 try:
-                    _ = w_encode('utf-8')
+                    _ = w_.encode('utf-8')
                     w_ = _
                 except:
                     pass
@@ -123,6 +212,41 @@ def load_data(train_path, test_path):
                     x.append(1)
                 else:
                     x.append(0)
+
+            bigram_set = set()
+            if len(raw_X[i]) - 1 > 0:
+                for j in range(len(raw_X[i]) - 1):
+                    w = raw_X[i][j] + "100001" + raw_X[i][j + 1]
+                    bigram_set.add(w)
+            for j in range(len(bigram_list)):
+                w_ = bigram_list[j]["word"]
+                try:
+                    _ = w_.encode('utf-8')
+                    w_ = _
+                except:
+                    pass
+                if w_ in bigram_set:
+                    x.append(1)
+                else:
+                    x.append(0)
+
+            trigram_set = set()
+            if len(raw_X[i]) - 2 > 0:
+                for j in range(len(raw_X[i]) - 2):
+                    w = raw_X[i][j] + "100001" + raw_X[i][j + 1] + "100001" + raw_X[i][j + 2]
+                    trigram_set.add(w)
+            for j in range(len(trigram_list)):
+                w_ = trigram_list[j]["word"]
+                try:
+                    _ = w_.encode('utf-8')
+                    w_ = _
+                except:
+                    pass
+                if w_ in trigram_set:
+                    x.append(1)
+                else:
+                    x.append(0)
+
             x.append(len(raw_X[i]))
             X.append(x)
         np.save(X_path, np.asarray(X))
@@ -155,7 +279,7 @@ def load_data(train_path, test_path):
             for j in range(len(keywords_list)):
                 w_ = keywords_list[j]["word"]
                 try:
-                    _ = w_encode('utf-8')
+                    _ = w_.encode('utf-8')
                     w_ = _
                 except:
                     pass
@@ -163,6 +287,41 @@ def load_data(train_path, test_path):
                     x.append(1)
                 else:
                     x.append(0)
+
+            bigram_set = set()
+            if len(raw_X_test[i]) - 1 > 0:
+                for j in range(len(raw_X_test[i]) - 1):
+                    w = raw_X_test[i] + "100001" + raw_X_test[i + 1]
+                    bigram_set.add(w)
+            for j in range(len(bigram_list)):
+                w_ = bigram_list[j]["word"]
+                try:
+                    _ = w_.encode('utf-8')
+                    w_ = _
+                except:
+                    pass
+                if w_ in bigram_set:
+                    x.append(1)
+                else:
+                    x.append(0)
+
+            trigram_set = set()
+            if len(raw_X_test[i]) - 2 > 0:
+                for j in range(len(raw_X_test[i]) - 2):
+                    w = raw_X_test[i] + "100001" + raw_X_test[i + 1] + "100001" + raw_X_test[i + 2]
+                    trigram_set.add(w)
+            for j in range(len(trigram_list)):
+                w_ = trigram_list[j]["word"]
+                try:
+                    _ = w_.encode('utf-8')
+                    w_ = _
+                except:
+                    pass
+                if w_ in trigram_set:
+                    x.append(1)
+                else:
+                    x.append(0)
+
             x.append(len(raw_X_test[i]))
             X_test.append(x)
         np.save(X_test_path, np.asarray(X_test))
@@ -176,6 +335,7 @@ def load_data(train_path, test_path):
 if __name__ == "__main__":
     train_path = "../data/exp2.train.csv"
     test_path = "../data/exp2.validation_review.csv"
+    #load_data(train_path, test_path)
     X, y, X_test = load_data(train_path, test_path)
     for i in range(10):
         print X_test[i]
