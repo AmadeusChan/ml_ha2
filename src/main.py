@@ -32,7 +32,7 @@ with open(count_path, "w") as f:
 
 config = {
         "base_model": "svm",
-        "ensemble": "boosting",
+        "ensemble": "bagging",
         "T": 5
         }
 
