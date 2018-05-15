@@ -32,8 +32,8 @@ with open(count_path, "w") as f:
 
 config = {
         "base_model": "svm",
-        "ensemble": "bagging",
-        "T": 5
+        "ensemble": "adaboosting",
+        "T": 20
         }
 
 X, y, X_test = Utils.load_data(train_path, test_path)
