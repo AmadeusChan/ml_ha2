@@ -9,8 +9,8 @@ def extract_bitrigram(raw_X, y, bigram_path, trigram_path):
     bigram_list = None
     trigram_list = None
 
-    bigram_th = 5e-5
-    trigram_th = 5e-5
+    bigram_th = 1e-5
+    trigram_th = 1e-5
 
     if os.path.isfile(bigram_path):
         with open(bigram_path, "r") as f:
