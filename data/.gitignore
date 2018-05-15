@@ -1,6 +1,11 @@
 ./keywords.json
 ./X.npy
 ./X_test.npy
+./bigrams.json
+./trigrams.json
+
 keywords.json
 X.npy
 X_test.npy
+bigrams.json
+trigrams.json
