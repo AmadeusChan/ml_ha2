@@ -291,7 +291,7 @@ def load_data(train_path, test_path):
             bigram_set = set()
             if len(raw_X_test[i]) - 1 > 0:
                 for j in range(len(raw_X_test[i]) - 1):
-                    w = raw_X_test[i] + "100001" + raw_X_test[i + 1]
+                    w = raw_X_test[i][j] + "100001" + raw_X_test[i][j + 1]
                     bigram_set.add(w)
             for j in range(len(bigram_list)):
                 w_ = bigram_list[j]["word"]
@@ -308,7 +308,7 @@ def load_data(train_path, test_path):
             trigram_set = set()
             if len(raw_X_test[i]) - 2 > 0:
                 for j in range(len(raw_X_test[i]) - 2):
-                    w = raw_X_test[i] + "100001" + raw_X_test[i + 1] + "100001" + raw_X_test[i + 2]
+                    w = raw_X_test[i][j] + "100001" + raw_X_test[i][j + 1] + "100001" + raw_X_test[i][j + 2]
                     trigram_set.add(w)
             for j in range(len(trigram_list)):
                 w_ = trigram_list[j]["word"]
