@@ -58,6 +58,7 @@ for train_idx, valid_idx in kf:
     else:
         ensemble = AdaBoostingM1()
 
+    """
     ensemble.aggregate(X_train, y_train, config["T"], base_model, is_classification = True)
     y_valid_ = ensemble.predict(X_valid)
 
@@ -65,14 +66,13 @@ for train_idx, valid_idx in kf:
     cf = tree.DecisionTreeClassifier()
     cf.fit(X_train, y_train)
     y_valid_ = cf.predict(X_valid)
-    """
 
     rmse = cal_rmse(y_valid, y_valid_)
     total_rmse += rmse
     print "valid rmse: %.4f" % (rmse) 
 
-    ensembles.append(ensemble)
-    #ensembles.append(cf)
+    #ensembles.append(ensemble)
+    ensembles.append(cf)
 
 print "\naverage rmse: %.4f" % (total_rmse / cv)
 
