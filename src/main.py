@@ -5,6 +5,7 @@ import numpy as np
 
 from sklearn.cross_validation import KFold
 from sklearn import tree
+from sklearn.svm import LinearSVC
 
 import Utils
 from Ensemble import *
@@ -30,9 +31,9 @@ with open(count_path, "w") as f:
     f.write(str(count) + "\n")
 
 config = {
-        "base_model": "d-tree",
-        "ensemble": "adaboosting",
-        "T": 5
+        "base_model": "svm",
+        "ensemble": "bagging",
+        "T": 15
         }
 
 X, y, X_test = Utils.load_data(train_path, test_path)
@@ -53,11 +54,15 @@ for train_idx, valid_idx in kf:
 
     if config["base_model"] == "d-tree":
         base_model = tree.DecisionTreeClassifier()
+    elif config["base_model"] == "svm":
+        base_model = LinearSVC(random_state=0)
+
     if config["ensemble"] == "bagging":
         ensemble = Bagging()
     else:
         ensemble = AdaBoostingM1()
 
+    """
     ensemble.aggregate(X_train, y_train, config["T"], base_model, is_classification = True)
     y_valid_ = ensemble.predict(X_valid)
 
@@ -65,14 +70,13 @@ for train_idx, valid_idx in kf:
     cf = tree.DecisionTreeClassifier()
     cf.fit(X_train, y_train)
     y_valid_ = cf.predict(X_valid)
-    """
 
     rmse = cal_rmse(y_valid, y_valid_)
     total_rmse += rmse
     print "valid rmse: %.4f" % (rmse) 
 
-    ensembles.append(ensemble)
-    #ensembles.append(cf)
+    #ensembles.append(ensemble)
+    ensembles.append(cf)
 
 print "\naverage rmse: %.4f" % (total_rmse / cv)
 
