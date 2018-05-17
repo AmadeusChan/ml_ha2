@@ -32,7 +32,7 @@ with open(count_path, "w") as f:
 config = {
         "base_model": "d-tree",
         "ensemble": "bagging",
-        "T": 5
+        "T": 15
         }
 
 output_path = output_path_prefix + "_base_model_" + config["base_model"] + "_ensemble_" + config["ensemble"] + "_T_" + str(config["T"]) + "_" + str(count) + ".csv"
