@@ -120,7 +120,7 @@ class Bagging(Ensemble):
             y_train_.append(y_train[idx])
         return X_train_, y_train_
 
-    def aggregate(self, X_train, y_train, T, base_model, is_classification):
+    def config(self, T, base_model, is_classification):
         self.base_model = copy.deepcopy(base_model)
         self.is_classification = is_classification
         self.classifiers = []
@@ -128,10 +128,12 @@ class Bagging(Ensemble):
             self.combining_strategy = MajorityVoting()
         else:
             self.combining_strategy = SimpleAveraging()
+        return self
 
+    def fit(self, X_train, y_train):
         for t in range(T):
             print "bagging t = %s/%s" % (t + 1, T)
-            classifier = copy.deepcopy(base_model)
+            classifier = copy.deepcopy(self.base_model)
             X_train_, y_train_ = self.bootstrap(X_train, y_train)
             classifier.fit(X_train_, y_train_)
             self.classifiers.append(classifier)
@@ -192,7 +194,7 @@ class AdaBoostingM1(Ensemble):
             y_train_.append(y_train[idx])
         return X_train_, y_train_
 
-    def aggregate(self, X_train, y_train, T, base_model, is_classification):
+    def config(self, T, base_model, is_classification):
         self.base_model = copy.deepcopy(base_model)
         self.is_classification = is_classification
         self.classifiers = []
@@ -202,6 +204,9 @@ class AdaBoostingM1(Ensemble):
         else:
             assert False # AdaBoosting for regression has not been supported yet
             self.combining_strategy = SimpleAveraging()
+        return self
+
+    def fit(self, X_train, y_train):
         weights = []
         N = len(X_train)
         for i in range(len(X_train)):
@@ -209,7 +214,7 @@ class AdaBoostingM1(Ensemble):
 
         for t in range(T):
             print "adaboosting t = %s/%s" % (t + 1, T)
-            classifier = copy.deepcopy(base_model)
+            classifier = copy.deepcopy(self.base_model)
             X_train_, y_train_ = self.weighted_sampling(X_train, y_train, weights)
             classifier.fit(X_train_, y_train_)
             predicted_y_train = classifier.predict(X_train)

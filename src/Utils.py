@@ -244,12 +244,14 @@ def load_data(train_path, test_path):
                 except:
                     pass
                 if w_ in trigram_set:
+                    #print "trigram found"
                     x.append(1)
                 else:
                     x.append(0)
             """
 
             x.append(len(raw_X[i]))
+            print x
             X.append(x)
         np.save(X_path, np.asarray(X))
     

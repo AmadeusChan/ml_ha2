@@ -60,10 +60,13 @@ for train_idx, valid_idx in kf:
 
     if config["ensemble"] == "bagging":
         ensemble = Bagging()
+        ensemble.config(config["T"], base_model, True)
     else:
         ensemble = AdaBoostingM1()
+        ensemble.config(config["T"], base_model, True)
 
-    ensemble.aggregate(X_train, y_train, config["T"], base_model, is_classification = True)
+    #ensemble.aggregate(X_train, y_train, config["T"], base_model, is_classification = True)
+    ensemble.fit(X_train, y_train)
     y_valid_ = ensemble.predict(X_valid)
 
     """
