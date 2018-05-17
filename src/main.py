@@ -30,9 +30,9 @@ with open(count_path, "w") as f:
     f.write(str(count) + "\n")
 
 config = {
-        "base_model": "d-tree",
+        "base_model": "adaboosting",
         "ensemble": "bagging",
-        "T": 15
+        "T": 3
         }
 
 output_path = output_path_prefix + "_base_model_" + config["base_model"] + "_ensemble_" + config["ensemble"] + "_T_" + str(config["T"]) + "_" + str(count) + ".csv"
@@ -41,7 +41,7 @@ X, y, X_test = Utils.load_data(train_path, test_path)
 X, y, X_test = np.asarray(X), np.asarray(y), np.asarray(X_test)
 y_test = []
 
-cv = 8
+cv = 3
 kf = KFold(len(X), cv)
 ensembles = []
 total_rmse = 0.
@@ -57,6 +57,9 @@ for train_idx, valid_idx in kf:
         base_model = tree.DecisionTreeClassifier()
     elif config["base_model"] == "svm":
         base_model = LinearSVC(random_state=0)
+    else:
+        base_model = AdaBoostingM1()
+        base_model.config(config["T"], tree.DecisionTreeClassifier(), True)
 
     if config["ensemble"] == "bagging":
         ensemble = Bagging()

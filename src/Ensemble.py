@@ -110,6 +110,7 @@ class Bagging(Ensemble):
         self.is_classification = None
         self.classifiers = None
         self.combining_strategy = None
+        self.T = None
 
     def bootstrap(self, X_train, y_train):
         X_train_ = []
@@ -124,6 +125,7 @@ class Bagging(Ensemble):
         self.base_model = copy.deepcopy(base_model)
         self.is_classification = is_classification
         self.classifiers = []
+        self.T = T
         if is_classification:
             self.combining_strategy = MajorityVoting()
         else:
@@ -131,8 +133,8 @@ class Bagging(Ensemble):
         return self
 
     def fit(self, X_train, y_train):
-        for t in range(T):
-            print "bagging t = %s/%s" % (t + 1, T)
+        for t in range(self.T):
+            print "bagging t = %s/%s" % (t + 1, self.T)
             classifier = copy.deepcopy(self.base_model)
             X_train_, y_train_ = self.bootstrap(X_train, y_train)
             classifier.fit(X_train_, y_train_)
@@ -155,6 +157,7 @@ class AdaBoostingM1(Ensemble):
         self.classifiers = None
         self.combining_strategy = None
         self.alpha = None
+        self.T = None
 
     # default time = 3, which means len(X_train_) = 3 x len(X_train)
     # since lim_{m->inf} (1-1/m)^(3m) \approx 0.05, which means on average over 95% trainning data are covered
@@ -199,6 +202,7 @@ class AdaBoostingM1(Ensemble):
         self.is_classification = is_classification
         self.classifiers = []
         self.alpha = []
+        self.T = T
         if is_classification:
             self.combining_strategy = WeightVoting()
         else:
@@ -212,8 +216,8 @@ class AdaBoostingM1(Ensemble):
         for i in range(len(X_train)):
             weights.append(1. / N)
 
-        for t in range(T):
-            print "adaboosting t = %s/%s" % (t + 1, T)
+        for t in range(self.T):
+            print "adaboosting t = %s/%s" % (t + 1, self.T)
             classifier = copy.deepcopy(self.base_model)
             X_train_, y_train_ = self.weighted_sampling(X_train, y_train, weights)
             classifier.fit(X_train_, y_train_)
