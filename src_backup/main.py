@@ -25,7 +25,6 @@ count_path = "../data/count.txt"
 
 with open(count_path, "r") as f:
     count = int(f.readline())
-output_path = output_path_prefix + str(count) + ".csv"
 count += 1
 with open(count_path, "w") as f:
     f.write(str(count) + "\n")
@@ -35,6 +34,8 @@ config = {
         "ensemble": "adaboosting",
         "T": 5
         }
+
+output_path = output_path_prefix + "_base_model_" + config["base_model"] + "_ensemble_" + config["ensemble"] + "_T_" + str(config["T"]) + "_" + str(count) + ".csv"
 
 X, y, X_test = Utils.load_data(train_path, test_path)
 X, y, X_test = np.asarray(X), np.asarray(y), np.asarray(X_test)
