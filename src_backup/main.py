@@ -1,5 +1,6 @@
 import random
 import math
+import copy
 
 import numpy as np
 
@@ -18,6 +19,25 @@ def cal_rmse(y_true, y_predict):
     loss = math.sqrt(loss * 1. / N)
     return loss
 
+def data_augmentation(X_train, y_train):
+    X_train_ = []
+    y_train_ = []
+    N = len(X_train)
+    for i in range(N):
+        x = copy.deepcopy(X_train[i])
+        y = copy.deepcopy(y_train[i])
+        X_train_.append(x)
+        y_train_.append(y)
+        x = copy.deepcopy(x)
+        x[random.randint(0, len(x) - 1)] ^= 1
+        X_train_.append(x)
+        y_train_.append(y)
+    idx = range(len(X_train_))
+    random.shuffle(idx)
+    X_train_, y_train_ = np.asarray(X_train_), np.asarray(y_train_)
+    #X_train_, y_train_ = X_train_[idx], y_train_[idx]
+    return X_train_, y_train_
+
 train_path = "../data/exp2.train.csv"
 test_path = "../data/exp2.validation_review.csv"
 output_path_prefix = "../result/exp2.output"
@@ -33,15 +53,16 @@ config = {
         "base_model": "d-tree",
         "ensemble": "adaboosting",
         "T": 10
+        "comment": "large_T_large_cv"
         }
 
-output_path = output_path_prefix + "_base_model_" + config["base_model"] + "_ensemble_" + config["ensemble"] + "_T_" + str(config["T"]) + "_" + str(count) + ".csv"
+cv = 10
+output_path = output_path_prefix + "_cv_" + str(cv) + "_comment_" + config["comment"] + "_base_model_" + config["base_model"] + "_ensemble_" + config["ensemble"] + "_T_" + str(config["T"]) + "_" + str(count) + ".csv"
 
 X, y, X_test = Utils.load_data(train_path, test_path)
 X, y, X_test = np.asarray(X), np.asarray(y), np.asarray(X_test)
 y_test = []
 
-cv = 5
 kf = KFold(len(X), cv)
 ensembles = []
 total_rmse = 0.
@@ -52,6 +73,11 @@ for train_idx, valid_idx in kf:
     cnt += 1
     X_train, y_train = X[train_idx], y[train_idx]  
     X_valid, y_valid= X[valid_idx], y[valid_idx]    
+    """
+    print "size of training set before augmentation: %s" % (len(X_train))
+    X_train, y_train = data_augmentation(X_train, y_train)
+    print "size of training set after augmentation: %s" % (len(X_train))
+    """
 
     if config["base_model"] == "d-tree":
         base_model = tree.DecisionTreeClassifier()

@@ -41,7 +41,7 @@ X, y, X_test = Utils.load_data(train_path, test_path)
 X, y, X_test = np.asarray(X), np.asarray(y), np.asarray(X_test)
 y_test = []
 
-cv = 5
+cv = 8
 kf = KFold(len(X), cv)
 ensembles = []
 total_rmse = 0.
@@ -60,10 +60,13 @@ for train_idx, valid_idx in kf:
 
     if config["ensemble"] == "bagging":
         ensemble = Bagging()
+        ensemble.config(config["T"], base_model, True)
     else:
         ensemble = AdaBoostingM1()
+        ensemble.config(config["T"], base_model, True)
 
-    ensemble.aggregate(X_train, y_train, config["T"], base_model, is_classification = True)
+    #ensemble.aggregate(X_train, y_train, config["T"], base_model, is_classification = True)
+    ensemble.fit(X_train, y_train)
     y_valid_ = ensemble.predict(X_valid)
 
     """

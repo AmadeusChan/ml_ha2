@@ -156,7 +156,7 @@ class AdaBoostingM1(Ensemble):
 
     # default time = 3, which means len(X_train_) = 3 x len(X_train)
     # since lim_{m->inf} (1-1/m)^(3m) \approx 0.05, which means on average over 95% trainning data are covered
-    def weighted_sampling(self, X_train, y_train, weights, times = 3):
+    def weighted_sampling(self, X_train, y_train, weights, times = 1):
         assert len(X_train) > 0
         X_train_ = []
         y_train_ = []
