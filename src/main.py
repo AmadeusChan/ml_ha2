@@ -31,8 +31,8 @@ with open(count_path, "w") as f:
 
 config = {
         "base_model": "svm",
-        "ensemble": "bagging",
-        "T": 5
+        "ensemble": "adaboosting",
+        "T": 15
         }
 
 output_path = output_path_prefix + "_base_model_" + config["base_model"] + "_ensemble_" + config["ensemble"] + "_T_" + str(config["T"]) + "_" + str(count) + ".csv"
@@ -41,7 +41,7 @@ X, y, X_test = Utils.load_data(train_path, test_path)
 X, y, X_test = np.asarray(X), np.asarray(y), np.asarray(X_test)
 y_test = []
 
-cv = 5
+cv = 8
 kf = KFold(len(X), cv)
 ensembles = []
 total_rmse = 0.
