@@ -31,7 +31,7 @@ with open(count_path, "w") as f:
     f.write(str(count) + "\n")
 
 config = {
-        "base_model": "d-tree",
+        "base_model": "svm",
         "ensemble": "adaboosting",
         "T": 5
         }
