@@ -290,6 +290,7 @@ def load_data(train_path, test_path):
                 else:
                     x.append(0)
 
+            """
             bigram_set = set()
             if len(raw_X_test[i]) - 1 > 0:
                 for j in range(len(raw_X_test[i]) - 1):
@@ -323,6 +324,7 @@ def load_data(train_path, test_path):
                     x.append(1)
                 else:
                     x.append(0)
+            """
 
             x.append(len(raw_X_test[i]))
             X_test.append(x)
